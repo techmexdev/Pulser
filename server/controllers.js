@@ -156,7 +156,7 @@ module.exports = {
       user_id: userId,
       type: thumbChoice
     })
-    .then(() => { /* console.log('successfully saved thumbs')*/ });
+    .then(() => { /* console.log('successfully saved thumbs') */ });
   },
   // function for getting all the lectures connected to the user
   getUserLectures: function (req, res) {
