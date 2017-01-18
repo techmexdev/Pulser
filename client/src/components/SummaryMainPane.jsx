@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import SummaryInfoBox from './SummaryInfoBox';
 import { connect } from 'react-redux';
 
-// this component holds boxes of data about the presentation
+// Holds boxes of data about the presentation
+// Contains
+  // SummaryInfoBox
 class SummaryMainPane extends Component {
 
   render () {
@@ -91,26 +93,32 @@ class SummaryMainPane extends Component {
 
       let formattedTopics = noOfTopics.map(topic => {
         let topicSummary = topicsSummary[topic];
-        return `${topic}: up: ${topicSummary[1]}, side: ${topicSummary[2]}, down: ${topicSummary[3]}`;
+        return `${topic}: thumbs up: ${topicSummary[1]}, thumbs side: ${topicSummary[2]}, thumbs down: ${topicSummary[3]}`;
       });
       // ------------------------------------------------------------------------------- //
       return (
-        <div id='mainPane' className='summary'>
-          <SummaryInfoBox title={'Average click per minute'} value={avgClickPerMinute}/>
-          {
-            !clickedUser
-            ? <div>
-              <SummaryInfoBox title={'Average click per user'} value={avgClickPerUser}/>
-              <SummaryInfoBox title={'Topics'} value={noOfTopics.length} viewDetails={formattedTopics} />
-            </div>
-            : <div>
-                <SummaryInfoBox title={'Upvotes'} value={noOfUpvotes} viewDetails={userUpvotes}/>
-                <SummaryInfoBox title={'Thumbs'} value={thumbs.length} thumbs = {thumbsCount} viewDetails={formattedThumbs}/>
+        <div id='mainPane' className='summary container-fluid'>
+          <div className='row'>
+            <div className='col-md-6'>
+            <SummaryInfoBox title={'Average click per minute'} value={avgClickPerMinute}/>
+            {
+              !clickedUser
+              ? <div>
+                <SummaryInfoBox title={'Average click per user'} value={avgClickPerUser}/>
+                <SummaryInfoBox title={'Topics'} value={noOfTopics.length} viewDetails={formattedTopics} />
               </div>
-          }
-          <SummaryInfoBox title={'Max click peak'} value={maxPeakDetail}/>
-          <SummaryInfoBox title={'Longest time w/o clicks'} value={`${longestMinutesWithOutClicks} minutes`}/>
-          <SummaryInfoBox title={'Questions'} value={noOfQuestions} viewDetails={formattedQuestions}/>
+              : <div>
+                  <SummaryInfoBox title={'Upvotes'} value={noOfUpvotes} viewDetails={userUpvotes}/>
+                  <SummaryInfoBox title={'Thumbs'} value={thumbs.length} thumbs = {thumbsCount} viewDetails={formattedThumbs}/>
+                </div>
+            }
+            </div>
+            <div className='col-md-6'>
+              <SummaryInfoBox title={'Max click peak'} value={maxPeakDetail}/>
+              <SummaryInfoBox title={'Longest time w/o clicks'} value={`${longestMinutesWithOutClicks} minutes`}/>
+              <SummaryInfoBox title={'Questions'} value={noOfQuestions} viewDetails={formattedQuestions}/>
+            </div>
+          </div>
         </div>
       );
     } else {

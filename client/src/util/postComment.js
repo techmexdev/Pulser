@@ -1,6 +1,6 @@
-// for posting a comment
 import $ from 'jquery';
 
+// for posts a comment for a lecture or user.
 const postComment = (lectureId, userId, comment) => {
   return $.ajax({
     url: `/api/${lectureId}/comment/${userId}`,

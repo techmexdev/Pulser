@@ -2,12 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import uuid from 'uuid/v1';
 import $ from 'jquery';
+import '../css/PresThumbs.css';
 
 // PresThumbs requests feedback from audience members and renders the results of that data.
   // Audience members are prompted for feedback with the AudThumbs component.
-
-//  TODO:  Find graphics
-
 class PresThumbs extends Component {
 
   componentDidMount () {
@@ -37,6 +35,7 @@ class PresThumbs extends Component {
     let topic = $('#topic').val();
     let lectureId = this.props.lectureId;
     socket.emit('submit thumbTopic', topicId, topic, lectureId);
+    this.props.dispatch({type: 'SET_TOPIC', topicId: topicId, topicName: topic});
     // add thumb title, remove thumb form
     $('#topicTitle:first-child').append($('#topic').val());
     $('#topic, #setTopic').fadeOut();
@@ -44,14 +43,26 @@ class PresThumbs extends Component {
 
   render () {
     return (
-      <div id='Thumbs' style={{display: 'none'}}>
-        <h1 id='topicTitle'> Topic: </h1>
-        <input id='topic' type='text' name='topic' /><br/>
-        <button id='setTopic' onClick={this.submitTopic.bind(this)}>Set Topic</button>
-        <div>
-          <div>Thumbs up!<br/>{this.props.thumbs.up}</div>
-          <div>Thumbs to the side!<br/>{this.props.thumbs.side}</div>
-          <div>Thumbs Down!<br/>{this.props.thumbs.down}</div>
+      <div id='PresThumbs' style={{display: 'none'}}>
+        <h2 id='topicTitle'>Topic: </h2>
+        <input className='form-control presenter-input' id='topic' type='text' name='topic' />
+        <button className='btn submit-btn' id='setTopic' onClick={this.submitTopic.bind(this)}>Set Topic</button>
+        <hr />
+        <div className='thumbs-list'>
+          <ul>
+            <li>
+              <p>{this.props.thumbs.up}</p>
+              <img src='../img/1-thumb.png' alt='thumbs-up'/>
+            </li>
+            <li>
+              <p>{this.props.thumbs.side}</p>
+              <img src='../img/2-thumb.png' alt='thumbs-side'/>
+            </li>
+            <li>
+              <p>{this.props.thumbs.down}</p>
+              <img src='../img/3-thumb.png' alt='thumbs-down'/>
+            </li>
+          </ul>
         </div>
       </div>
     );
@@ -63,7 +74,8 @@ const mapStateToProps = (state) => {
   return {
     thumbs: state.thumbs,
     socket: state.activeLecture.socket,
-    lectureId: state.activeLecture.lectureId
+    lectureId: state.activeLecture.lectureId,
+    dispatch: state.dispatch
   };
 };
 

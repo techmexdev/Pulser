@@ -1,6 +1,6 @@
-// helper function for fetching user's presentation
 import $ from 'jquery';
 
+// Fetches user's presentation.
 const getUserLectures = (callback) => {
   $.get('api/userLectures')
   .done((data)=>{

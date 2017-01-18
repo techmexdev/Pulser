@@ -1,15 +1,17 @@
 // js file for accessing the database
-var db = require('./db.js');
+
+let db = require('./db.js');
 
 module.exports = {
   // getting user information from the users table
   getUser: function (req, res) {
     db('users').where('id', req.session.userId)
       .then(function (data) {
-        var user = data[0];
+        let user = data[0];
         res.send({name: user.name, avatar: user.avatar, email: user.email, id: user.id});
       });
   },
+  //  Checks if a user exists and updates/inserts appropriately
   saveUser: function (user) {
     return db('users').where('id', user.id)
       .then(function (res) {
@@ -17,19 +19,19 @@ module.exports = {
           // if user exists in the database update user info
           return db('users').where('id', user.id).update(user);
         } else {
-          console.log("didn't exist");
           // save user info to the database then return a promise
           return db('users').insert(user);
         }
       });
   },
+  //  Saves end time for handling summary view and logging clicks.
   saveEndTime: function (endLecture) {
     return db('lectures').where('id', endLecture.id).update({
       // use db.fn.now() to capture the current time on the server side
       // so that both start and end time are serverside
       end_time: db.fn.now()
     })
-      .then(/*console.log('successfully updated endLecture')*/);
+      .then(/*necessary for knex*/);
   },
   // save lecture info to the database then return a promise
   saveLecture: function (lecture) {
@@ -42,6 +44,11 @@ module.exports = {
         module.exports.userLecture(lecture);
       });
   },
+  // update the title of lecture to the database
+  updateLectureTitle: function (title, lectureId) {
+    return db('lectures').update({name: title})
+    .where('id', lectureId).then(/*.then for knex*/);
+  },
   // Toggle guest permission to attend lecture
   guestsToggle: function (lecture) {
     return db('lectures')
@@ -49,8 +56,9 @@ module.exports = {
     .update({
       guest: lecture.guestsPermitted
     })
-    .then(/*console.log(`successfully updated guest permissions for ${lecture.lectureId}`)*/);
+    .then(/*still necessary for knex*/);
   },
+  // Checks if guests are allowd for a given presentation
   checkGuestsPermitted: function (lectureId) {
     return db.select('guest').from('lectures')
     .where('id', lectureId)
@@ -58,13 +66,24 @@ module.exports = {
   },
   // Associate a lecture and a user in the user_lectures table
   userLecture: function (lecture) {
-    return db('user_lectures').insert({
+    // check whether this user has already been added to this lecture
+    return db.select().from('user_lectures')
+    .where({
       user_id: lecture.userId,
-      lecture_id: lecture.id,
-      role: lecture.role
+      lecture_id: lecture.id
     })
-      .then(() => {
-        // console.log('successfully associated a lecture to a user' );
+      .then((data) => {
+        // Data returns an array with length 0 if no entry is found
+        if (!data.length) {
+          // Add them if they haven't
+          return db('user_lectures')
+          .insert({
+            user_id: lecture.userId,
+            lecture_id: lecture.id,
+            role: lecture.role
+          })
+          .then(/*for knex*/);
+        }
       });
   },
   // save a click to the database then return a promise
@@ -74,23 +93,21 @@ module.exports = {
       user_id: click.userId,
       date: click.date
     })
-      .then((data) => {
-        // console.log('successfully inserted');
-      });
+    .then((data) => {
+      return db('user_lectures').where({user_id: click.userId, lecture_id: click.lectureId})
+      .increment('no_of_clicks', 1);
+    }).then(/*for knex*/);
   },
   // save a question to the database then return a promise
   saveQuestion: function (question) {
-    console.log('saveQuestion event fired');
     return db('questions').insert({
       id: question.questionId,
       lecture_id: question.lectureId,
       user_id: question.userId,
       question: question.questionText,
-      votes: 1
+      votes: 0
     })
-    .then(() => {
-      console.log('successfully saved question');
-    });
+    .then(/*for knex*/);
   },
   // save an upvote to the database then return a promise
   saveUpvote: function (upvote) {
@@ -123,13 +140,12 @@ module.exports = {
   },
   // save a 'thumbs' topic to the database then return a promise
   saveTopic: function (topicId, topic, lectureId) {
-    console.log('savetopic event fired, topicId, topic, lectureId', topicId, topic, lectureId);
     return db('topics').insert({
       id: topicId,
       lecture_id: lectureId,
       topic: topic
     })
-    .then(() => { /* console.log('successfully saved topic entry'); */ });
+    .then(() => { /* console.log('successfully saved topic') */ });
   },
   // save a thumb choice to the database then return a promise
   saveThumbChoice: function (topicId, userId, thumbChoice) {
@@ -140,11 +156,11 @@ module.exports = {
       user_id: userId,
       type: thumbChoice
     })
-    .then(() => { /* console.log('successfully saved user\'s thumb choice'); */ });
+    .then(() => { /* console.log('successfully saved thumbs')*/ });
   },
   // function for getting all the lectures connected to the user
   getUserLectures: function (req, res) {
-    var user = req.session.userId;
+    let user = req.session.userId;
     db.select('*').from('lectures')
     .join('user_lectures', 'lectures.id', 'user_lectures.lecture_id')
     .where({user_id: user}).orderBy('date', 'desc')
@@ -152,10 +168,10 @@ module.exports = {
       res.send(data);
     });
   },
-  // getting the summary for lectures
+  // getting info for Summary View
   getSummary: function (req, res) {
-    var lectureId = req.params.lecture_id;
-    var summary = {};
+    let lectureId = req.params.lecture_id;
+    let summary = {};
     // get all the users connected to the lecture
     db.select('*').from('users')
     .join('user_lectures', 'users.id', 'user_lectures.user_id')
@@ -193,21 +209,29 @@ module.exports = {
   },
   // inserting comment in the database
   addComment: function (req, res) {
-    var lectureId = req.params.lecture_id;
-    var userId = req.params.user_id;
-    var comment = req.body.comment;
+    let lectureId = req.params.lecture_id;
+    let userId = req.params.user_id;
+    let comment = req.body.comment;
     return db('user_lectures').where({lecture_id: lectureId, user_id: userId})
     .update({comment: comment})
     .then(function (data) {
-      res.send('succes');
+      res.send('success');
     });
   },
   // fetching a specific comment
   getComment: function (req, res) {
-    var lectureId = req.params.lecture_id;
-    var userId = req.params.user_id;
+    let lectureId = req.params.lecture_id;
+    let userId = req.params.user_id;
     return db.select('*').from('user_lectures')
     .where({lecture_id: lectureId, user_id: userId})
+    .then(function (data) {
+      res.send(data);
+    });
+  },
+  // Checks if a given lecture_id exists.
+  lectureCheck: function (req, res) {
+    let lectureId = req.params.lecture_id;
+    return db.select('*').from('lectures').where('id', lectureId)
     .then(function (data) {
       res.send(data);
     });

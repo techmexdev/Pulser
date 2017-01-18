@@ -12,18 +12,18 @@
 // action = {type: 'TOGGLE_UPVOTED', questionId: string}
 // action = {type: 'CLEAR_QUESTIONS'}
 
-const questionReducer = (state = {}, action) => {
+const questionReducer = (state = {enabled: false}, action) => {
   switch (action.type) {
     case 'CREATE_QUESTION':
       return Object.assign({}, state, {
         [action.questionId]: {
           questionText: action.questionText,
-          votes: 1,
+          votes: action.votes || 0,
           upvoted: false
         }
       });
     case 'UPVOTE':
-      return Object.assign(state, {
+      return Object.assign({}, state, {
         [action.questionId]: Object.assign({}, state[action.questionId],
           {votes: state[action.questionId].votes + 1})
       });
@@ -38,7 +38,11 @@ const questionReducer = (state = {}, action) => {
           {upvoted: !state[action.questionId].upvoted})
       });
     case 'CLEAR_QUESTIONS':
-      return {};
+      return {enabled: state.enabled};
+    case 'TOGGLE_ENABLED':
+      return Object.assign({}, state, {
+        enabled: !state.enabled
+      });
     default:
       return state;
   }

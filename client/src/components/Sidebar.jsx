@@ -3,7 +3,12 @@ import { Link } from 'react-router';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import $ from 'jquery';
+import TitleBar from './TitleBar';
+import '../css/Sidebar.css';
+
 // sidebar menu for presenter to toggle modules and use additional functionality
+// Contains
+  // FeedbackBox
 class Sidebar extends Component {
 
   componentDidMount () {
@@ -20,16 +25,19 @@ class Sidebar extends Component {
 
     $('#questionToggle').on('click', function () {
       socket.emit('questionToggle');
-      $('#QuestionBox').fadeToggle('slow');
     });
 
     // Toggle in/out 'Thumbs' component
     $('#thumbsToggle').on('click', function () {
+      // update the store as well
+      dispatch({
+        type: 'TOGGLE_DISPLAY_THUMBS'
+      });
     // If thumbs component isn't toggled, then toggle it in
       if (!thumbsToggle) {
-        $('#Thumbs').fadeToggle('slow');
+        $('#PresThumbs').fadeToggle('slow');
       } else { // if already visible, toggle it out and reset it
-        $('#Thumbs').fadeToggle('fast');
+        $('#PresThumbs').fadeToggle('fast');
         $('#topicTitle').text('Topic: ');
         $('#topic').val('');
         $('#topic, #setTopic').fadeIn();
@@ -40,7 +48,7 @@ class Sidebar extends Component {
     });
 
     $('#timerToggle').on('click', function () {
-      $('#Timer').fadeToggle('slow');
+      $('.timer').fadeToggle('slow');
     });
 
     $('#pulseToggle').on('click', function () {
@@ -48,6 +56,7 @@ class Sidebar extends Component {
     });
 
     $('#feedbackToggle').on('click', function () {
+      dispatch({type: 'TOGGLE_DISPLAY_FEEDBACK'});
       socket.emit('feedbackToggle');
     });
 
@@ -61,7 +70,8 @@ class Sidebar extends Component {
     });
 
     // Events that end the presentation should alert the audience and server
-    $('#stopPresentation, #exit').on('click', function () {
+    $('#stopPresentation, #exit').on('click', () => {
+      this.props.stopTimer();
       let endTime = new Date();
       let endLecture = {
         id: lectureId,
@@ -72,20 +82,52 @@ class Sidebar extends Component {
   }
 
   render () {
-    // console.log('this.props in Sidebar: ', this.props)
     let embedUrl = this.props.activeLecture.embedUrl;
     return (
-      <div>
-        <Link to={`/summary/${this.props.activeLecture.lectureId}`}><button id='exit'>X</button></Link>
-        <a href={embedUrl} target="_blank"><button>Projector</button></a>
-        <button id='timerToggle'>Timer</button>
-        <button id='questionToggle'>Question</button>
-        <button id='thumbsToggle'>Thumbs</button>
-        <button id='pulseToggle'>Pulse</button>
-        <button id='feedbackToggle'>Feedback</button>
-        <span>Permit Guests<input type="checkbox" id='guestsToggle'></input></span>
-        <Link to={`/summary/${this.props.activeLecture.lectureId}`}><button id='summary'>Summary</button></Link>
-        <Link to={`/summary/${this.props.activeLecture.lectureId}`}><button id='stopPresentation'>Stop Presentation</button></Link>
+      <div id="Sidebar">
+        <ul>
+          <li><TitleBar className='title-bar'/></li>
+          <div className='timer'>
+            <div className='clock'>{this.props.time}</div>
+            <div className='sidebar-header'>
+              <h2>DURATION</h2>
+              <p>{this.props.duration}</p>
+            </div>
+            <hr/>
+          </div>
+        </ul>
+        <div className='container'/>
+
+          <div className='row tools-row allow-guest'>
+            <span>Permit Guests<input type="checkbox" id='guestsToggle'></input></span>
+          </div>
+          <hr/>
+
+          <div className='row tools-row '>
+            <div className='offset-md-1'>
+              <a href={embedUrl} target="_blank"><button className='btn tool-btn btn'><span>Projector</span><i className="fa fa-desktop"></i></button></a>
+              <button id='timerToggle' className='tool-btn btn'><span>Timer</span><i className="fa fa-clock-o"></i></button>
+            </div>
+          </div>
+
+          <div className='row tools-row '>
+            <button id='questionToggle' className='tool-btn btn'><span>Question</span><i className="fa fa-question-circle-o"></i></button>
+            <button id='thumbsToggle' className='tool-btn btn'><span>Thumbs</span><i className="fa fa-thumbs-up"></i></button>
+          </div>
+
+          <div className='row tools-row '>
+            <button id='pulseToggle' className='tool-btn btn'><span>Pulse</span><i className="fa fa-line-chart"></i></button>
+            <button id='feedbackToggle' className='tool-btn btn'><span>Feedback</span><i className="fa fa-exclamation"></i></button>
+          </div>
+
+          <div className='row tools-row '>
+            <Link to={`/summary/${this.props.activeLecture.lectureId}`}>
+              <button id='stopPresentation' className='btn btn-red' >
+                <i className="fa fa-times"></i> Stop Presentation
+              </button>
+            </Link>
+          </div>
+
       </div>
     );
   }

@@ -1,0 +1,124 @@
+hr {
+	color:#CECECE;
+	background-color: #CECECE;
+	text-align: center;
+	width:96%;
+	height: 1px;
+	border: none;
+	margin:10px;
+}
+
+#Sidebar{
+	/*float:right;*/
+	/*width: 22.5vw;*/
+	background-color: #FFFFFF;
+	/*margin-right: 2.5vw;*/
+	border-radius: 5px;
+	position: relative;
+}
+
+#Sidebar ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 2px;
+}
+.sidebar-row {
+	padding: 0;
+}
+.container {
+	margin: 0;
+	padding: 0;
+}
+
+/*-------------------title---------------------*/
+
+.lecture-title h1 {
+	font-size: 1.8em;
+	margin: 10px 2px 0 2px;
+	text-align: center;
+	color: #333333;
+}
+
+.lecture-title span {
+	color: #6292BD;
+}
+
+.title-form {
+	margin: 10px auto;
+	width: 100%;
+}
+
+.title-buttons {
+	text-align: center;
+}
+
+.side-btn {
+	width:90%;
+	margin:2px 5%;
+}
+/*--------------------share code-------------*/
+
+.sidebar-header h2{
+	font-size: 1em;
+	text-align: left;
+	margin: 2% 10%;
+	color: #CECECE;
+	text-transform: uppercase;
+}
+
+.sidebar-header p {
+	width: 80%;
+	margin: 2% auto;
+	background: white;
+	padding: 5px;
+	text-align: center;
+	border-radius: 3px;
+	font-size: 1.5em;
+	border: 1px solid #CECECE;
+	color: #666666;
+}
+
+/*-------------------clock--------------------*/
+.clock {
+	font-size: 3em;
+	font-weight: bold;
+	text-align: center;
+}
+/*-------------------tools----------------------*/
+
+.tools-row {
+	margin: auto;
+  text-align: center;
+}
+.tool-btn {
+	background-color: #EFF2F6;
+	color:#6292BD;
+	margin: 3%;
+	width: 30%;
+	height: 8vh;
+	border: 1px solid #CECECE;
+	overflow: hidden;
+}
+.tool-btn:hover, .tool-btn:focus {
+	background-color: #6292BD;
+	color: #FFFFFF;
+}
+.tool-btn span {
+	display: block;
+	margin: 5%;
+}
+.allow-guest {
+	text-align: left;
+	font-size: 1em;
+	margin: 0 10%;
+	color: #666666;
+}
+#guestsToggle {
+	margin:2px;
+	width: 50px;
+}
+
+#stopPresentation {
+	margin: 2% auto 20%;
+	width: 66%;
+}

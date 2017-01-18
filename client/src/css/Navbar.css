@@ -1,0 +1,44 @@
+#profilePic {
+	border-radius: 50%;
+	height: 5vh;
+	width: auto;
+	float: right;
+	margin-right: 15px;
+}
+
+#NavbarContainer {
+	padding-top: 1vh;
+	height: 7.5vh;
+	width: 100%;
+	display: inline-block;
+	background: linear-gradient(#474747, #8c8c8c);
+	background: -webkit-linear-gradient(#474747, #8c8c8c);
+	background: -o-linear-gradient(#474747, #8c8c8c);
+	background: -moz-linear-gradient(#474747, #8c8c8c);
+  box-shadow: 0 0 10px #000000;
+	color: #FFFFFF;
+	z-index: 20;
+	position: relative;
+}
+
+#BrandContainer {
+	display: inline-block;
+	margin-left: 15px;
+}
+#BrandContainer a{
+	margin: 5px;
+	font-size: 20px;
+	color: #FFFFFF;
+}
+#BrandContainer a:hover, a:focus{
+	text-decoration: none;
+	color: #FFFFFF;
+}
+
+#logo {
+	height: 5vh;
+}
+
+#LogoutButton {
+	height: 5vh;
+}

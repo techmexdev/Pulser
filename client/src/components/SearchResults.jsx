@@ -5,6 +5,8 @@ import { Link } from 'react-router';
 
 // panel to display search results from querying DB for specific presentation data
   // Rendered by loginDashboard.
+// Contains
+ // PresThumbnail
 class SearchResults extends Component {
 
   render () {
@@ -15,15 +17,23 @@ class SearchResults extends Component {
     );
     return (
       <div>
-        { searchLectures.length === 0 ? <p>No results found</p>
+        <ul>
+        { searchLectures.length === 0 ? <p className ='no-results'>No results found</p>
           : searchLectures.map((lecture, i) =>
           // restrict click functionality for viewed lectures
-            lecture.role === 'audience'
-            ? <PresThumbnail key = {lecture.id} date = {lecture.date} name = {lecture.name} />
-            : <Link key={i} to={`/summary/${lecture.lecture_id}`}>
-                <PresThumbnail date = {lecture.date} name = {lecture.name} />
-              </Link>
+            <li className='slideThumb'>
+            {
+              lecture.role === 'audience'
+              ? <a key={i} href={`https://docs.google.com/presentation/d/${lecture.presentation_id}/preview`} target='_blank'>
+                  <PresThumbnail key = {lecture.id} viewed={true} date = {lecture.date} name = {lecture.name} />
+                </a>
+              : <Link key={i} to={`/summary/${lecture.lecture_id}`}>
+                  <PresThumbnail date = {lecture.date} name = {lecture.name} />
+                </Link>
+            }
+            </li>
         )}
+        </ul>
       </div>
     );
   };

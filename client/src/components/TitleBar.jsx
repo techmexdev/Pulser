@@ -1,29 +1,86 @@
-//  TitleBar renders at the top of PresenterView.
-  // Displays the presentation title and the Date as default lectureTitle.
-    //  lectureTitle is editable.
-  // Displays lectureID.
-  // TODO Make Title editable.
-
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
+// Shows title and other info at top of PresenterView
+// Contains
+  // --
 class TitleBar extends Component {
   constructor () {
     super();
     // Date set-up here so it only calculates once.
     this.d = new Date();
     this.now = this.d.getHours() + ':' + this.d.getMinutes() + '  ' + this.d.getDate() + '-' + (this.d.getMonth() + 1) + '-' + this.d.getFullYear();
+    // ui state
+    this.state = {
+      toggleView: false,
+      title: undefined // for accessing the text inside the input field
+    };
+  }
+  // show/hide textbox field
+  changeView (toggle) {
+    this.setState({toggleView: toggle});
+  }
+
+  changeTitle () {
+    // update the activeLecture
+    let lecture = {
+      lectureId: this.props.activeLecture.lectureId,
+      name: this.state.title || 'untitled',
+      presentationId: this.props.activeLecture.presentationId,
+      embedUrl: this.props.activeLecture.embedUrl,
+      socket: this.props.activeLecture.socket
+    };
+
+    this.props.dispatch(
+      {
+        type: 'UPDATE_TITLE',
+        lecture: lecture
+      }
+    );
+    // send a socket event to the server to update the database
+    lecture.socket.emit('updateTitle', lecture.lectureId, lecture.name);
+    // hide the textfield
+    this.setState({'toggleView': false});
+  }
+
+  handleChange (event) {
+    this.setState({title: event.target.value || 'untitled'});
   }
 
   render () {
     return (
       <div>
-       <h1> Lecture Title {this.props.activeLecture.name + '  ' + this.now} </h1>
-       <h2> Join Code {this.props.activeLecture.lectureId} </h2>
+        {
+          !this.state.toggleView
+          ? <div className='lecture-title'>
+              <h1><span>{this.state.newTitle || this.props.activeLecture.name} </span>
+                <i className="fa fa-pencil" onClick={() => { this.changeView(true); }}></i>
+              </h1>
+            </div>
+          : <div>
+            <input className='form-container comment-form title-form ' type='text' defaultValue={this.props.activeLecture.name}
+             onChange={this.handleChange.bind(this)}/>
+            <div className='title-buttons'>
+              <button className='btn btn-red'onClick={() => { this.changeView(false); }}>Cancel</button>
+              <button className='btn btn-green' onClick={this.changeTitle.bind(this)}>Save</button>
+            </div>
+          </div>
+        }
+        <hr/>
+        <div className='sidebar-header'>
+          <h2>SHARE CODE</h2>
+          <p>{this.props.activeLecture.lectureId}</p>
+         </div>
+        <hr/>
       </div>
     );
   };
 
 };
+const mapStateToProps = (state) => {
+  return {
+    activeLecture: state.activeLecture
+  };
+};
 
-export default connect(state => state)(TitleBar);
+export default connect(mapStateToProps)(TitleBar);

@@ -3,10 +3,13 @@ import '../css/SummaryView.css';
 import getLectureSummary from '../util/getLectureSummary';
 import { connect } from 'react-redux';
 import SummaryLeftPane from './SummaryLeftPane';
-import LogoutButton from './LogoutButton';
 import SummaryRightPane from './SummaryRightPane';
+import Navbar from './Navbar';
 
-// View to display summary data about the presentation and users
+// Displays summary data about the presentation and users
+// Contains
+  // SummaryLeftPane
+  // SummaryRightPane
 class SummaryView extends Component {
 
   componentWillMount () {
@@ -24,12 +27,18 @@ class SummaryView extends Component {
     if (this.props.summary) {
       return (
         <div>
-        <LogoutButton/>
-        <div>
-          <h1>Summary</h1>
-          <SummaryLeftPane/>
-          <SummaryRightPane/>
-        </div>
+          <Navbar/>
+          <div className='container-fluid summary-main'>
+            <h1 className='summary-title'>
+              <i className="fa fa-line-chart"></i>
+              Summary: <span>{ this.props.summary.lecture === undefined
+                ? '' : this.props.summary.lecture[0].name }</span>
+            </h1>
+            <div className='row'>
+              <SummaryLeftPane/>
+              <SummaryRightPane/>
+            </div>
+          </div>
         </div>
       );
     } else {

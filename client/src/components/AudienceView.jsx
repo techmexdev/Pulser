@@ -1,70 +1,40 @@
-// Contains the elements for the Audience, including:
-  // Logout Button
-  // FeedbackBox
-  // Slides
-  // FeedbackButton
-
 import FeedbackBox from './FeedbackBox';
 import Slides from './Slides';
 import React, { Component } from 'react';
-import LogoutButton from './LogoutButton';
 import $ from 'jquery';
-import QuestionBox from './QuestionBox'; // also renders to presenter view
 import { connect } from 'react-redux';
 import { browserHistory } from 'react-router';
-import AudThumbs from './AudThumbs';
+import store from '../store.jsx';
+import Navbar from './Navbar';
 
+// Audience presentation view.
+// Contains:
+  // Navbar
+  // Slides
+  // FeedbackBox
 class AudienceView extends Component {
 
   componentDidMount () {
-    let thumbsDisplayed = false;
-    // thumbsStore is not currently updating how it should be
-    // leaving commented in in case we decide to use it
-    // let dispatch = this.props.dispatch;
-    // Socket event listener to trigger fade out
     let socket = this.props.activeLecture.socket;
-
-    // Trigger questions box toggle
-    socket.on('questionToggle', function () {
-      $('#QuestionBox').fadeToggle('slow');
-    });
-
-    // open up 'thumbs' box
-    socket.on('open thumbs', function (topicId, topic) {
-      console.log('open thumbs tId, t', topicId, topic);
-      $('#thumbTopic').text(topic);
-      $('#Thumbs').fadeToggle('slow');
-      // this is not being used ... curently
-      // dispatch({type: 'SET_TOPIC_ID', topicId: topicId});
-      // this is not being used ... currently
-      // dispatch({type: 'TOGGLE_DISPLAY'});
-      thumbsDisplayed = !thumbsDisplayed;
-    });
-
-    // Trigger thumbs box to close if still open
-    socket.on('close thumbs', function () {
-      if (thumbsDisplayed) {
-        $('#Thumbs').fadeToggle('slow');
-        // dispatch({type: 'TOGGLE_DISPLAY'});
-      }
-      thumbsDisplayed = !thumbsDisplayed;
-    });
-
+    this.props.dispatch({type: 'CHANGE_ROLE', role: 'audience'});
     socket.on('stopPresentation', function () {
+      socket.disconnect();
       browserHistory.push('/');
     });
-  }
+  };
 
   render () {
+    // <button onClick={this.showStore.bind(this)}>store</button>
+
     return (
       <div id="AudienceView">
-      <LogoutButton/>
-      <div>
-        <Slides id="audienceSlides" class="slides" role="audience"/>
-        <FeedbackBox/>
-        <QuestionBox/>
-        <AudThumbs/>
-      </div>
+        <Navbar/>
+        <div id="SlidesContainer">
+          <Slides id="audienceSlides" class="slides" role="audience" title={store.getState().activeLecture.name}/>
+        </div>
+        <div id="FeedbackBoxContainer">
+          <FeedbackBox/>
+        </div>
       </div>
     );
   }
@@ -72,8 +42,7 @@ class AudienceView extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    activeLecture: state.activeLecture,
-    dispatch: state.dispatch
+    activeLecture: state.activeLecture
   };
 };
 

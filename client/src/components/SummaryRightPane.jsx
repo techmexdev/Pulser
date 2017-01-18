@@ -1,13 +1,16 @@
-// component for display right side of summary view
-// filtered either by lecture's summary or selected user's summary
 import React, { Component } from 'react';
 import SummaryMainPane from './SummaryMainPane';
 import SummaryComment from './SummaryComment';
 import rd3 from 'rd3';
 import { connect } from 'react-redux';
-const LineChart = rd3.LineChart;
 import timeDiffToMinutes from '../util/timeDiffToMinutes';
+const LineChart = rd3.LineChart;
 
+// Displays right side of summary view
+// filtered either by lecture's summary or selected user's summary
+// Contains
+  // SummaryMainPane
+  // Summary Comment
 class SummaryRightPane extends Component {
   constructor () {
     super();
@@ -28,7 +31,7 @@ class SummaryRightPane extends Component {
       if (users) {
         const comment = users.filter(user => user.role === 'presenter')[0].comment;
         return (
-          <div>
+          <div className = 'lecture-summary col-md-7 offset-md-1'>
             <SummaryMainPane/>
             <SummaryComment
               comment={this.state.lectureComment || comment}
@@ -42,6 +45,7 @@ class SummaryRightPane extends Component {
     } else {
       // else display user's summary
       const userId = this.props.userId;
+      const name = this.props.summary.users.filter(user => user.user_id === userId)[0].name;
       const lecture = this.props.summary.lecture[0];
       const start = new Date(lecture.date);
       const end = new Date(lecture.end_time);
@@ -77,25 +81,32 @@ class SummaryRightPane extends Component {
         }
       ];
       return (
-        <div>
-          <SummaryMainPane userId={userId}/>
-          <SummaryComment
-            userId={userId}
-            comment = {this.props.comment}
-            upDateComment = {this.props.upDateComment}
-          />
-          <LineChart
-            className = 'user-pulsedata'
-            data={lineData}
-            width='80%'
-            height='20%'
-            viewBoxObject={{x: 0, y: 0, width: 1200, height: 200}}
-            circleRadius = {0}
-            domain={{x: [0, maxAxisX], y: [0, maxAxisY]}}
-            yAxisLabel="No. of Clicks"
-            xAxisLabel="Elapsed Time (minutes)"
-            gridHorizontal={true}
-          />
+        <div className ='user-summary-container container col-md-7 offset-md-1'>
+          <div className = 'user-summary'>
+            <h2 className='audience'>{name} <span onClick={ () => { this.props.displayUserSummary(); } }>
+              <i className='fa fa-times-circle'></i>
+            </span></h2>
+            <SummaryMainPane userId={userId}/>
+            <SummaryComment
+              userId={userId}
+              comment = {this.props.comment}
+              upDateComment = {this.props.upDateComment}
+            />
+            <div className = 'user-pulse-container'>
+              <LineChart
+                className = 'user-pulse'
+                data={lineData}
+                width='100%'
+                height='20%'
+                viewBoxObject={{x: 0, y: 0, width: 800, height: 300}}
+                circleRadius = {5}
+                domain={{x: [0, maxAxisX], y: [0, maxAxisY]}}
+                yAxisLabel="No. of Clicks"
+                xAxisLabel="Elapsed Time (minutes)"
+                gridHorizontal={true}
+              />
+            </div>
+          </div>
         </div>
       );
     }

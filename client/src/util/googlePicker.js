@@ -1,10 +1,10 @@
 // Google Picker window to choose presentation from user's Google Drive files
-// Assign a lectureId to the chosen presentation. Load this information to the store 
-// TODO: MOVE THE DISPATCH LOGIC ELSEWHERE (TO NEW PRES BUTTON)
+// Assign a lectureId to the chosen presentation. Load this information to the store
 import $ from 'jquery';
 import setLectureId from './setLectureId';
 import store from '../store.jsx';
 import { browserHistory } from 'react-router';
+
 // The Browser API key obtained from the Google Developers Console.
 var developerKey = 'AIzaSyDqyarNe48JyUUU36b32iblZ7A3HbHXNF4';
 
@@ -51,20 +51,29 @@ function handleAuthResult(authResult) {
   }
 }
 
+// get picker from the store
+let picker = store.getState().picker
+
 // Create and render a Picker object for searching Google Slides presentations.
   // checks to see that both Picker API and Auth API have loaded
 function createPicker() {
   if (pickerApiLoaded && oauthToken) {
     var view = new google.picker.View(google.picker.ViewId.PRESENTATIONS);
     view.setMimeTypes('application/vnd.google-apps.presentation');
-    var picker = new google.picker.PickerBuilder()
-        .enableFeature(google.picker.Feature.NAV_HIDDEN)
-        .setAppId(appId)
-        .setOAuthToken(oauthToken)
-        .addView(view)
-        .setDeveloperKey(developerKey)
-        .setCallback(pickerSlideCallback)
-        .build();
+    // if picker is not already set, create it
+    if (!picker) {
+      picker = new google.picker.PickerBuilder()
+          .enableFeature(google.picker.Feature.NAV_HIDDEN)
+          .setAppId(appId)
+          .setOAuthToken(oauthToken)
+          .addView(view)
+          .setDeveloperKey(developerKey)
+          .setCallback(pickerSlideCallback)
+          .build();
+      // set picker in the store
+      store.dispatch({type:'SET_PICKER', picker: picker})
+    }
+    // set picker to visible
     picker.setVisible(true);
   }
 }
@@ -103,12 +112,13 @@ function pickerSlideCallback(data) {
       userId: userId,
       role: 'presenter'
     };
-    let socket = store.getState().activeLecture.socket;
+    let socket = store.getState().activeLecture.socket
     socket.emit('saveLecture', lecture);
-    
+
     // Redirect user to <PresenterView/>
     browserHistory.push('/presenter');
   }
 }
 
-export default loadPicker
+
+export default loadPicker;

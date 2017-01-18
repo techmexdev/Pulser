@@ -1,38 +1,41 @@
 import React, { Component } from 'react';
 import $ from 'jquery';
 import { connect } from 'react-redux';
+
 // This renders each question in the store with an upvote button
 // each question receives its text and ID as props from QuestionBox
 class Question extends Component {
 
   toggleUpvote () {
-    let render = this.forceUpdate.bind(this);
+    let userId = this.props.user.id;
+    let questionId = this.props.id;
     let socket = this.props.activeLecture.socket;
     // toggle the upvoted property in store for this question
     let upvoteDownvote = this.props.questions[this.props.id].upvoted ? 'downvoteQuestion' : 'upvoteQuestion';
     // Build an upvote object to pass to the database
     let question = {
-      userId: this.props.user.id,
-      questionId: this.props.id
+      userId: userId,
+      questionId: questionId
     };
     // Emit an event that a question was upvoted or downvoted
-    socket.emit(upvoteDownvote, question);
+    socket.emit(upvoteDownvote, question, userId);
     // Update the store to reflect that an upvote/downvote has been fired
     this.props.dispatch({
       type: 'TOGGLE_UPVOTED',
       questionId: this.props.id
     });
-    render();
-  }
+  };
 
   render () {
-    let buttonText = this.props.questions[this.props.id].upvoted ? 'Downvote' : 'Upvote';
-    // console.log('this.props in question', this.props);
+    let upvoteImg = this.props.questions[this.props.id].upvoted ? './img/arrows_up-green.svg' : './img/arrows_up.svg';
     return (
-      <div>
-       <button className='upvoteDownvote' id={this.props.text} onClick={this.toggleUpvote.bind(this)}>{buttonText}</button>
-       <span>{this.props.text}</span>
-     </div>
+      <div className='question' onClick={this.toggleUpvote.bind(this)}>
+        <div className='voteContainer'>
+          <img src={upvoteImg} className='upvoteDownvote'/>
+          <div className='questionVotes'>{this.props.votes}</div>
+          </div>
+        <span className='questionText'>{this.props.text}</span>
+      </div>
     );
   };
 };

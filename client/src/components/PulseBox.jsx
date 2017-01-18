@@ -1,23 +1,23 @@
-// this component is for displaying the live visualization of users' feedback
 import { connect } from 'react-redux';
 import rd3 from 'rd3';
 import timeDiffToMinutes from '../util/timeDiffToMinutes';
 import React, { Component } from 'react';
 import $ from 'jquery';
+import '../css/PulseBox.css';
+
 // define LineChart component from react-d3
 const LineChart = rd3.LineChart;
-
+// this component is for displaying the live visualization of users' feedback
 class PulseBox extends Component {
 
   render () {
-    // console.log('props in pulseBox render: ', this.props);
-    var currTime = new Date();
-    var timeDiff = timeDiffToMinutes(this.props.startTime, currTime);
+    let currTime = new Date();
+    let timeDiff = timeDiffToMinutes(this.props.startTime, currTime);
 
     // compare the time to 1 minute for testing
     // sort values to prevent backwards movement bug
-    var filteredPulse = this.props.pulseData.filter(pulse => {
-      return Math.abs(timeDiff - pulse.x) <= 0.5;
+    let filteredPulse = this.props.pulseData.filter(pulse => {
+      return Math.abs(timeDiff - pulse.x) <= 1;
     }).sort((pulse1, pulse2) => pulse1.x - pulse2.x);
     // if filteredPulse is empty, populate it with a default 0,0 data point
     if (!filteredPulse.length) {
@@ -25,9 +25,9 @@ class PulseBox extends Component {
     }
 
     // set the min and max of x axis with the time value of the first element from filteredPulse
-    var xMin = filteredPulse[0].x;
-    var xMax = filteredPulse[0].x + 0.5;
-    let audience = this.props.audience > 4 ? this.props.audience : 4;
+    let xMin = filteredPulse[0].x;
+    let xMax = filteredPulse[0].x + 1;
+    let audience = this.props.audience > 8 ? this.props.audience : 8;
     // if the number of clicks reaches 70% of number of audience, display a warning for the presenter
     if (filteredPulse[filteredPulse.length - 1].y > (audience * 0.70)) {
       $('.pulse-box').addClass('alert-red');
@@ -37,16 +37,17 @@ class PulseBox extends Component {
     }
 
     // need to set lineData prior to return statement to preserve "this" context
-    var lineData = [
+    let lineData = [
       {
         values: filteredPulse,
         strokeWidth: 2
       }
     ];
-
     // Render "stock ticker" style line graph
     return (
       <div id='PulseBox' className = "pulse-box">
+      <span id="GraphTitle">Pulse
+        <hr/>
         <LineChart
           className = 'pulsedata-linechart'
           data={lineData}
@@ -56,18 +57,18 @@ class PulseBox extends Component {
             x: 0,
             y: 0,
             width: 1200,
-            height: 200
-          }
-          }
+            height: 280
+          }}
           circleRadius = {0}
           domain={
             // set the maximum value of x to the estimated time of presentation
             // set the maximum value of y to the number of audience members
             { x: [xMin, xMax], y: [0, audience] }
           }
-          xAxisLabel="Elapsed Time (minutes)"
           gridHorizontal={true}
+          gridVertical={true}
         />
+      </span>
       </div>
     );
   }

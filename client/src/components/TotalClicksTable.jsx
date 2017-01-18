@@ -4,8 +4,11 @@ import { Link } from 'react-router';
 import SummaryRightPane from './SummaryRightPane.jsx';
 import getComment from '../util/getComment.js';
 import TotalClicksRow from './TotalClicksRow.jsx';
+import $ from 'jquery';
 
 // table to display total number of clicks per user during the presentation
+// Contains
+  // TotalClicksRow
 class TotalClicksTable extends Component {
   constructor () {
     super();
@@ -39,33 +42,35 @@ class TotalClicksTable extends Component {
     if (this.props.summary.users) {
       usersClicks = this.props.summary.users.filter(user => user.role === 'audience');
       return (
-        <div>
-          <Link to="/">Home</Link>
-          <table id="usersClicks">
-          <tbody>
-            <tr>
-              <th>User</th>
-              <th>Clicks</th>
-            </tr>
-            {
-              usersClicks.map(user =>
-              <TotalClicksRow
-                key={Math.random()}
-                userId={user.user_id}
-                displayUserSummary={this.displayUserSummary.bind(this)}
-                avatar={user.avatar}
-                name={user.name}
-                noOfClicks={user.no_of_clicks}
-              />
-              )
-            }
-          </tbody>
-          </table>
+        <div className='col-md-5'>
+          <div className='table-responsive audience-table '>
+            <table className="usersClicks table">
+            <tbody>
+              <tr>
+                <th>Audience</th>
+                <th>Clicks</th>
+              </tr>
+              {
+                usersClicks.map(user =>
+                <TotalClicksRow
+                  key={Math.random()}
+                  userId={user.user_id}
+                  displayUserSummary={this.displayUserSummary.bind(this)}
+                  avatar={user.avatar}
+                  name={user.name}
+                  noOfClicks={user.no_of_clicks}
+                />
+                )
+              }
+            </tbody>
+            </table>
+          </div>
           {
             this.state.showUserSummary
             ? <SummaryRightPane
               userId={this.state.showUserSummary}
               comment = {this.state.comment}
+              displayUserSummary={this.displayUserSummary.bind(this)}
               upDateComment = {this.upDateComment.bind(this)}
             /> : null
           }

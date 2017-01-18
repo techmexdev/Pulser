@@ -2,26 +2,25 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import uuid from 'uuid/v1';
 import $ from 'jquery';
+import store from '../store.jsx';
 
-// AudThumbs allows audience members to give feedback when the presenter enables to 'thumbs' poll component.
-  // This allows the presenter to see how each audience member feels about a specific topic/question.
-
-//  TODO:  Find graphics
-
+// AudThumbs allows audience members to indicate their feelings about a subject when the presenter desires.
+// Contains
+  // --
 class AudThumbs extends Component {
 
   componentDidMount () {
-    // console.log('this.props in AudThumbs', this.props);
-    $('#Thumbs').toggle();
     let socket = this.props.socket;
     let userId = this.props.userId;
-    // set currentTopicId from store, but it's not updating as expected
-    // leaving it commented for now in case we use store later on.
-    let currentTopicId; /* = this.props.topicId; */
-    // let dispatch = this.props.dispatch;
-    // We have redundant socket listeners here.
-    // This is a patch until store is working
-    socket.on('open thumbs', (topicId, topic) => currentTopicId = topicId);
+    let currentTopicId = store.getState().topicId;
+    let thumbsDisplayed = store.getState().thumbs.displayed;
+    // render Thumbs box for the given topic when event 'open thumbs' is fired
+    socket.on('open thumbs', function (topicId, topic) {
+      currentTopicId = topicId;
+      $('#AudThumbTopic').text(topic); // set h1 to current topic
+      $('#Thumbs').fadeIn('slow'); // fade in Thumbs feature
+      thumbsDisplayed = true;
+    });
     $('.thumbButton').click(function (e) {
       // get direction of thumb that was chosen
       let thumbChoice = $(this)[0].id;
@@ -29,18 +28,25 @@ class AudThumbs extends Component {
       socket.emit('thumb clicked', currentTopicId, userId, thumbChoice);
       // fade out component and set 'displayed' property to false in the store
       $('#Thumbs').fadeOut(1);
-      // dispatch toggle_thumbs_box . This is not being used ... currently
-      // dispatch({type: 'TOGGLE_DISPLAY'});
+      thumbsDisplayed = false;
     });
-  }
+
+    // Trigger thumbs box to close if still open
+    socket.on('close thumbs', function () {
+      if (thumbsDisplayed) $('#Thumbs').fadeOut('fast');
+      thumbsDisplayed = false;
+    });
+  };
 
   render () {
+    let thumbDisplay = store.getState().thumbs.displayed ? 'block' : 'none';
     return (
-      <div id="Thumbs">
-        <h1 id="thumbTopic"></h1>
-        <button className='thumbButton' id='up'>Thumbs up!</button>
-        <button className='thumbButton' id='side'>Thumbs to the side!</button>
-        <button className='thumbButton' id='down'>Thumbs Down!</button>
+      <div id="Thumbs" style={{display: thumbDisplay}}>
+        <span className="sidebar-header"><h2 id="AudThumbTopic">{store.getState().thumbs.topicName}</h2></span>
+        <img src='./img/1-thumb.png' className='thumbButton' id='up'/>
+        <img src='./img/2-thumb.png' className='thumbButton' id='side'/>
+        <img src='./img/3-thumb.png' className='thumbButton' id='down'/>
+        <hr/>
       </div>
     );
   };
@@ -49,9 +55,7 @@ class AudThumbs extends Component {
 const mapStateToProps = (state) => {
   return {
     socket: state.activeLecture.socket,
-    userId: state.user.id,
-    topicId: state.thumbs.topicId,
-    dispatch: state.dispatch
+    userId: state.user.id
   };
 };
 
