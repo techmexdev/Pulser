@@ -2,15 +2,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import uuid from 'uuid/v1';
 import $ from 'jquery';
-import store from '../store.jsx';
 
 class AudThumbs extends Component {
 
   componentDidMount () {
     let socket = this.props.socket;
     let userId = this.props.userId;
-    let currentTopicId = store.getState().topicId;
-    let thumbsDisplayed = store.getState().thumbs.displayed;
+    let currentTopicId = this.props.thumbs.topicId;
+    let thumbsDisplayed = this.props.thumbs.displayed;
     // render Thumbs box for the given topic when event 'open thumbs' is fired
     socket.on('open thumbs', function (topicId, topic) {
       currentTopicId = topicId;
@@ -36,10 +35,10 @@ class AudThumbs extends Component {
   };
 
   render () {
-    let thumbDisplay = store.getState().thumbs.displayed ? 'block' : 'none';
+    let thumbDisplay = this.props.thumbs.displayed ? 'block' : 'none';
     return (
       <div id="Thumbs" style={{display: thumbDisplay}}>
-        <span className="sidebar-header"><h2 id="AudThumbTopic">{store.getState().thumbs.topicName}</h2></span>
+        <span className="sidebar-header"><h2 id="AudThumbTopic">{this.props.thumbs.topicName}</h2></span>
         <img src='./img/1-thumb.png' className='thumbButton' id='up'/>
         <img src='./img/2-thumb.png' className='thumbButton' id='side'/>
         <img src='./img/3-thumb.png' className='thumbButton' id='down'/>
@@ -52,7 +51,8 @@ class AudThumbs extends Component {
 const mapStateToProps = (state) => {
   return {
     socket: state.activeLecture.socket,
-    userId: state.user.id
+    userId: state.user.id,
+    thumbs: state.thumbs
   };
 };
 
